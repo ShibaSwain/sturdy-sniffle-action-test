@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ needs.determine-environment.outputs.env-selected }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Compile
-        run: echo pull-requests number - ${{ github.event.pull_request.number }}, environment - ${{ github.event.ref }}
+        run: echo pull-requests number - ${{ github.event.pull_request.number }}, environment - ${{ needs.determine-environment.outputs.env-selected }}, token - ${{ secrets.TF_TOKEN }}, workspace - ${{ vars.TF_WORKSPACE }}
