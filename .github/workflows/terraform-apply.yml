@@ -1,0 +1,40 @@
+name: Terraform plan & apply with manual approval
+
+on:
+  push:
+    branches: [ main, stagging, development ]
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+jobs:
+  determine-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      env-selected: ${{ steps.select-environment.outputs.env-selected }}
+
+    steps:
+      - name: "Select environment"
+        id: select-environment
+        run: |
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            echo "Production environment selected for deployment - ${{ github.base_ref }} - ${{ github.ref_name }}"
+            echo "env-selected=Production" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" == "stagging" ]; then
+            echo "Stagging environment selected for deployment - ${{ github.base_ref }} - ${{ github.ref_name }}"
+            echo "env-selected=Stagging" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" == "development" ]; then
+            echo "Development environment selected for deployment - ${{ github.base_ref }} - ${{ github.ref_name }}"
+            echo "env-selected=Development" >> $GITHUB_OUTPUT
+          fi
+
+  terraform-apply:
+    name: "Terraform apply"
+    needs: [determine-environment]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.determine-environment.outputs.env-selected }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile
+        run: echo pull-requests number - ${{ github.event.pull_request.number }}, environment - ${{ needs.determine-environment.outputs.env-selected }}, token - ${{ secrets.TF_TOKEN }}, workspace - ${{ vars.TF_WORKSPACE }}
