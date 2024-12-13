@@ -28,8 +28,8 @@ jobs:
             echo "env-selected=Development" >> $GITHUB_OUTPUT
           fi
 
-  terraform-plan:
-    name: "Terraform plan"
+  terraform-apply:
+    name: "Terraform apply"
     needs: [determine-environment]
     runs-on: ubuntu-latest
     environment: ${{ needs.determine-environment.outputs.env-selected }}
