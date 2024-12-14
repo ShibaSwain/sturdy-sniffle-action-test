@@ -41,20 +41,20 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ needs.determine-environment.outputs.env-selected }}      
     outputs:
-      tf_token: ${{ steps.set-values.outputs.tf_token }}
+      tf_org: ${{ steps.set-values.outputs.tf_org }}
       tf_workspace: ${{ steps.set-values.outputs.tf_workspace }}
     steps:
       - name: "Set values"
         id: set-values
         run: |
-          echo "::set-output name=tf_token::${{ secrets.TF_TOKEN }}"
-          echo "::set-output name=tf_workspace::${{ vars.TF_WORKSPACE }}"
+          echo "tf_org=${{ vars.TF_CLOUD_ORGANIZATION }}" >> $GITHUB_OUTPUT
+          echo "tf_workspace=${{ vars.TF_WORKSPACE }}" >> $GITHUB_OUTPUT
         
   deployment:
     needs: [determine-environment, set-values]
     uses: ./.github/workflows/reusable-action.yml
     secrets: inherit
     with:
-      TF_CLOUD_ORGANIZATION: ${{ needs.set-values.outputs.tf_token }}
+      TF_CLOUD_ORGANIZATION: ${{ needs.set-values.outputs.tf_org }}
       TF_WORKSPACE: ${{ needs.set-values.outputs.tf_workspace }}
       ENVIRONMENT: ${{ needs.determine-environment.outputs.env-selected }}
