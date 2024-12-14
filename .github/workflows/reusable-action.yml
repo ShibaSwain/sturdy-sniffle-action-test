@@ -1,0 +1,27 @@
+name: "Reusable Action"
+
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        default: lab
+        type: string
+      TF_CLOUD_ORGANIZATION:
+        type: string
+      TF_WORKSPACE:
+        type: string
+    secrets:
+      TFE_TOKEN:
+        required: false
+
+env:
+  WORKFLOW_TYPE: 'plan'
+
+jobs:
+  static_code_check:
+    name: "Static code check"
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    steps:
+     - name: static_code_check
+       run: echo "org - ${{ inputs.TF_CLOUD_ORGANIZATION }}, workspace - ${{ inputs.TF_WORKSPACE }}, token - ${{ secrets.TFE_TOKEN }}"
