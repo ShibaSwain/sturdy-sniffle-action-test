@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       env-selected: ${{ steps.select-environment.outputs.env-selected }}
-
     steps:
       - name: "Select environment"
         id: select-environment
@@ -28,13 +27,27 @@ jobs:
             echo "env-selected=Development" >> $GITHUB_OUTPUT
           fi
 
+  set-values:
+    needs: [determine-environment]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.determine-environment.outputs.env-selected }}
+    outputs:
+      tf_token: ${{ steps.set-values.outputs.tf_token }}
+      tf_workspace: ${{ steps.set-values.outputs.tf_workspace }}
+    steps:
+      - name: "Set values"
+        id: set-values
+        run: |
+          echo "::set-output name=tf_token::${{ secrets.TF_TOKEN }}"
+          echo "::set-output name=tf_workspace::${{ vars.TF_WORKSPACE }}"
+
   terraform-apply:
     name: "Terraform apply"
-    needs: [determine-environment]
+    needs: [determine-environment, set-values]
     runs-on: ubuntu-latest
     environment: ${{ needs.determine-environment.outputs.env-selected }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Compile
-        run: echo pull-requests number - ${{ github.event.pull_request.number }}, environment - ${{ needs.determine-environment.outputs.env-selected }}, token - ${{ secrets.TF_TOKEN }}, workspace - ${{ vars.TF_WORKSPACE }}
+        run: echo pull-requests number - ${{ github.event.pull_request.number }}, environment - ${{ needs.determine-environment.outputs.env-selected }}, token - ${{ needs.set-values.outputs.tf_token }}, workspace - ${{ needs.set-values.outputs.tf_workspace }}

@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       env-selected: ${{ steps.select-environment.outputs.env-selected }}
-
     steps:
       - name: "Select environment"
         id: select-environment
@@ -37,13 +36,25 @@ jobs:
             echo "env-selected=Development" >> $GITHUB_OUTPUT
           fi
 
-  terraform-plan:
-    name: "Terraform plan"
+  set-values:
     needs: [determine-environment]
     runs-on: ubuntu-latest
-    environment: ${{ needs.determine-environment.outputs.env-selected }}
+    environment: ${{ needs.determine-environment.outputs.env-selected }}      
+    outputs:
+      tf_org: ${{ steps.set-values.outputs.tf_org }}
+      tf_workspace: ${{ steps.set-values.outputs.tf_workspace }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Compile
-        run: echo pull-requests number - ${{ github.event.pull_request.number }}, environment - ${{ needs.determine-environment.outputs.env-selected }}, token - ${{ secrets.TF_TOKEN }}, workspace - ${{ vars.TF_WORKSPACE }}
+      - name: "Set values"
+        id: set-values
+        run: |
+          echo "tf_org=${{ vars.TF_CLOUD_ORGANIZATION }}" >> $GITHUB_OUTPUT
+          echo "tf_workspace=${{ vars.TF_WORKSPACE }}" >> $GITHUB_OUTPUT
+        
+  deployment:
+    needs: [determine-environment, set-values]
+    uses: ./.github/workflows/reusable-action.yml
+    secrets: inherit
+    with:
+      TF_CLOUD_ORGANIZATION: ${{ needs.set-values.outputs.tf_org }}
+      TF_WORKSPACE: ${{ needs.set-values.outputs.tf_workspace }}
+      ENVIRONMENT: ${{ needs.determine-environment.outputs.env-selected }}
