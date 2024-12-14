@@ -55,6 +55,6 @@ jobs:
     uses: ./.github/workflows/reusable-action.yml
     secrets: inherit
     with:
-      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
-      TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+      TF_CLOUD_ORGANIZATION: ${{ needs.set-values.outputs.tf_token }}
+      TF_WORKSPACE: ${{ needs.set-values.outputs.tf_workspace }}
       ENVIRONMENT: ${{ needs.determine-environment.outputs.env-selected }}

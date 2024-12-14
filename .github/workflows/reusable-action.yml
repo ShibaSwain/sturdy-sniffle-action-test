@@ -24,4 +24,4 @@ jobs:
     environment: ${{ inputs.ENVIRONMENT }}
     steps:
      - name: static_code_check
-       run: echo "org - ${{ inputs.TF_CLOUD_ORGANIZATION }}, workspace - ${{ inputs.TF_WORKSPACE }}, token - ${{ secrets.TFE_TOKEN }}"
+       run: echo "env - ${{ inputs.ENVIRONMENT }}, org - ${{ inputs.TF_CLOUD_ORGANIZATION }}, workspace - ${{ inputs.TF_WORKSPACE }}, token - ${{ secrets.TFE_TOKEN }}"
